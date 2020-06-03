@@ -65,4 +65,28 @@ final class NavigateTests: XCTestCase {
         let action: Navigate = try actionFromJsonFile(fileName: "poptoview")
         assertSnapshot(matching: action, as: .dump)
     }
+    
+    func test_whenExecuteNavigateAction_shouldUseTheNavigator() {
+        // Given
+        let navigationSpy = BeagleNavigationSpy()
+        let action = Navigate.pushView(.remote(""))
+        let controller = BeagleControllerStub()
+        controller.dependencies = BeagleScreenDependencies(navigation: navigationSpy)
+        
+        // When
+        action.execute(controller: controller, sender: self)
+        
+        // Then
+        XCTAssertTrue(navigationSpy.didCallNavigate)
+    }
+}
+
+// MARK: - Test helpers
+
+class BeagleNavigationSpy: BeagleNavigation {
+    private(set) var didCallNavigate = false
+
+    func navigate(action: Navigate, controller: BeagleController, animated: Bool) {
+        didCallNavigate = true
+    }
 }

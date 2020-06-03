@@ -16,10 +16,27 @@
 
 import UIKit
 
-public class BeagleScreenViewController: UIViewController {
+public typealias BeagleController = UIViewController & BeagleControllerProtocol
+
+public protocol BeagleControllerProtocol: NSObjectProtocol {
+    var dependencies: BeagleDependenciesProtocol { get }
+    var serverDrivenState: ServerDrivenState { get set }
+    var screenType: ScreenType { get }
+    var screen: Screen? { get }
+}
+
+public class BeagleScreenViewController: BeagleController {
     
-    let viewModel: BeagleScreenViewModel
+    // MARK: - BeagleControllerProtocol
     
+    public var dependencies: BeagleDependenciesProtocol {
+        return viewModel.dependencies
+    }
+    
+    public var serverDrivenState: ServerDrivenState = .loading(false) {
+        didSet { notifyBeagleNavigation(state: serverDrivenState) }
+    }
+
     public var screenType: ScreenType {
         return viewModel.screenType
     }
@@ -28,35 +45,23 @@ public class BeagleScreenViewController: UIViewController {
         return viewModel.screen
     }
     
-    public lazy var formContextManager: FormManaging = FormManager(dependencies: dependencies, delegate: self)
-    public lazy var lazyLoadContextManager: LazyLoadManaging = LazyLoadManager(dependencies: dependencies, delegate: self)
-    public lazy var actionContextManager: ActionManaging = ActionManager(delegate: self)
+    // MARK: -
     
-    var dependencies: ViewModel.Dependencies {
-        return viewModel.dependencies
-    }
-    
-    var beagleNavigation: BeagleNavigationController? {
+    private let viewModel: BeagleScreenViewModel
+            
+    private var beagleNavigation: BeagleNavigationController? {
         return navigationController as? BeagleNavigationController
     }
     
-    private(set) var contentController: UIViewController? {
+    private var contentController: UIViewController? {
         willSet { removeContentController() }
         didSet { addContentController() }
     }
     
     // MARK: - Initialization
     
-    public convenience init(component: ServerDrivenComponent) {
-        self.init(screen: component.toScreen())
-    }
-    
-    public convenience init(screen: Screen) {
-        self.init(.declarative(screen))
-    }
-    
-    public convenience init(remote: ScreenType.Remote) {
-        self.init(.remote(remote))
+    public convenience init(_ component: ServerDrivenComponent) {
+        self.init(.declarative(component.toScreen()))
     }
     
     public convenience init(_ screenType: ScreenType) {
@@ -114,7 +119,7 @@ public class BeagleScreenViewController: UIViewController {
         ViewConfigurator.applyAccessibility(screenNavigationBar?.backButtonAccessibility, to: navigationItem)
         
         navigationItem.rightBarButtonItems = screenNavigationBar?.navigationBarItems?.reversed().map {
-            $0.toBarButtonItem(context: self, dependencies: viewModel.dependencies)
+            $0.toBarButtonItem(controller: self)
         }
         
         if let style = screen.navigationBar?.style,
@@ -130,14 +135,13 @@ public class BeagleScreenViewController: UIViewController {
         case .initialized:
             break
         case .loading:
-            beagleNavigation?.startLoading(self)
+            serverDrivenState = .loading(true)
         case .success:
-            beagleNavigation?.stopLoading(self)
+            serverDrivenState = .loading(false)
             renderScreenIfNeeded()
         case .failure(let error):
-            beagleNavigation?.stopLoading(self)
             renderScreenIfNeeded()
-            handleError(error)
+            serverDrivenState = .error(error)
         }
     }
     
@@ -146,8 +150,7 @@ public class BeagleScreenViewController: UIViewController {
             updateNavigationBar(animated: true)
             contentController = ScreenController(
                 screen: screen,
-                context: self,
-                dependencies: viewModel.dependencies
+                beagleController: self
             )
         }
     }
@@ -156,10 +159,6 @@ public class BeagleScreenViewController: UIViewController {
         contentController = nil
         viewModel.screenType = screenType
         createContentController()
-    }
-    
-    func handleError(_ error: ServerDrivenState.Error) {
-        beagleNavigation?.serverDrivenStateDidChange(to: .error(error), at: self)
     }
     
     // MARK: - View Setup
@@ -186,6 +185,12 @@ public class BeagleScreenViewController: UIViewController {
         view.addSubview(contentController.view)
         contentController.view.anchorTo(superview: view)
         contentController.didMove(toParent: self)
+    }
+    
+    // MARK: -
+    
+    private func notifyBeagleNavigation(state: ServerDrivenState) {
+        beagleNavigation?.serverDrivenStateDidChange(to: state, at: self)
     }
 }
 

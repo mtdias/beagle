@@ -39,11 +39,11 @@ public struct Image: Widget, AutoInitiableAndDecodable {
 
 extension Image: Renderable {
 
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    public func toView(controller: BeagleController) -> UIView {
         let image = UIImageView(frame: .zero)
         image.clipsToBounds = true
         image.contentMode = (contentMode ?? .fitCenter).toUIKit()
-        image.setImageFromAsset(named: name, bundle: dependencies.appBundle)
+        image.setImageFromAsset(named: name, bundle: controller.dependencies.appBundle)
         
         image.beagle.setup(self)
         

@@ -36,12 +36,12 @@ public struct FormSubmit: ServerDrivenComponent {
 
 extension FormSubmit: Renderable {
     
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
-        let childView = child.toView(context: context, dependencies: dependencies)
+    public func toView(controller: BeagleController) -> UIView {
+        let childView = child.toView(controller: controller)
         childView.flex.isEnabled = true
         childView.beagleFormElement = self
         
-        let view = FormSubmitView(childView: childView, enabled: enabled, dependencies: dependencies)
+        let view = FormSubmitView(childView: childView, enabled: enabled)
         return view
     }
     
@@ -49,16 +49,13 @@ extension FormSubmit: Renderable {
         
         let childView: UIView
         let observable: Observable<WidgetState>
-        private var dependencies: RenderableDependencies?
         
         init(
             childView: UIView,
-            enabled: Bool?,
-            dependencies: RenderableDependencies?
+            enabled: Bool?
         ) {
             self.childView = childView
             self.observable = Observable(value: WidgetState(value: enabled))
-            self.dependencies = dependencies
             super.init(frame: .zero)
             addSubview(childView)
         }

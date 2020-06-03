@@ -63,7 +63,7 @@ final class BeagleScreenViewControllerTests: XCTestCase {
             
             override func serverDrivenStateDidChange(
                 to state: ServerDrivenState,
-                at screenController: BeagleScreenViewController
+                at screencontroller: BeagleController
             ) {
                 if case .error(let error) = state, case .remoteScreen(let remoteError) = error {
                     remoteScreenError = remoteError
@@ -127,7 +127,7 @@ final class BeagleScreenViewControllerTests: XCTestCase {
                 widgetProperties: .init(appearance: Appearance(backgroundColor: "#00FF00"), flex: Flex(grow: 1, margin: .init(all: .init(value: 10, type: .real))))
             )
         )
-        let screenController = BeagleScreenViewController(screen: screen)
+        let screenController = BeagleScreenViewController(.declarative(screen))
         screenController.additionalSafeAreaInsets = UIEdgeInsets(top: 10, left: 20, bottom: 30, right: 40)
         let navigation = BeagleNavigationController(rootViewController: screenController)
         navigation.navigationBar.barTintColor = .white
@@ -262,4 +262,29 @@ struct SimpleComponent {
     var content = Container(children:
         [Text("Mock")]
     )
+}
+
+class BeagleControllerStub: BeagleController {
+    
+    var dependencies: BeagleDependenciesProtocol
+    var serverDrivenState: ServerDrivenState = .loading(false)
+    var screenType: ScreenType
+    var screen: Screen?
+    
+    init(
+        _ screenType: ScreenType = .remote(.init(url: "")),
+        dependencies: BeagleDependenciesProtocol = BeagleScreenDependencies()
+    ) {
+        self.screenType = screenType
+        self.dependencies = dependencies
+        if case .declarative(let screen) = screenType {
+            self.screen = screen
+        }
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
 }

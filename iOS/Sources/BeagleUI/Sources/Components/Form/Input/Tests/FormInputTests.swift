@@ -33,7 +33,7 @@ final class FormInputTests: XCTestCase {
         let formInput = FormInput(name: "username", child: ComponentDummy())
         
         // When
-        let formInputView = formInput.toView(context: BeagleContextDummy(), dependencies: BeagleScreenDependencies())
+        let formInputView = formInput.toView(controller: BeagleControllerStub())
         
         // Then
         XCTAssertTrue(formInputView.beagleFormElement is FormInput)

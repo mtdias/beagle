@@ -44,14 +44,14 @@ public struct Form: ServerDrivenComponent, AutoInitiableAndDecodable {
 }
 
 extension Form: Renderable {
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
-        let childView = child.toView(context: context, dependencies: dependencies)
+    public func toView(controller: BeagleController) -> UIView {
+        let childView = child.toView(controller: controller)
         var hasFormSubmit = false
         
         func registerFormSubmit(view: UIView) {
             if view.beagleFormElement is FormSubmit {
                 hasFormSubmit = true
-                context.formManager.register(form: self, formView: childView, submitView: view, validatorHandler: dependencies.validatorProvider)
+                register(form: self, formView: childView, submitView: view, controller: controller)
             }
             for subview in view.subviews {
                 registerFormSubmit(view: subview)
@@ -60,10 +60,28 @@ extension Form: Renderable {
         
         registerFormSubmit(view: childView)
         if !hasFormSubmit {
-            dependencies.logger.log(Log.form(.submitNotFound(form: self)))
+            controller.dependencies.logger.log(Log.form(.submitNotFound(form: self)))
         }
         return childView
-    }    
+    }
+    
+    private func register(form: Form, formView: UIView, submitView: UIView, controller: BeagleController) {
+        let gestureRecognizer = SubmitFormGestureRecognizer(
+            form: form,
+            formView: formView,
+            formSubmitView: submitView,
+            controller: controller
+        )
+        if let control = submitView as? UIControl,
+           let formSubmit = submitView.beagleFormElement as? FormSubmit,
+           let enabled = formSubmit.enabled {
+            control.isEnabled = enabled
+        }
+
+        submitView.addGestureRecognizer(gestureRecognizer)
+        submitView.isUserInteractionEnabled = true
+        gestureRecognizer.updateSubmitView()
+    }
 }
 
 extension UIView {

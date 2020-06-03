@@ -55,14 +55,14 @@ public enum ScrollAxis: String, Decodable {
 }
 
 extension ScrollView: Renderable {
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    public func toView(controller: BeagleController) -> UIView {
         let scrollBarEnabled = self.scrollBarEnabled ?? true
         let flexDirection = (scrollDirection ?? .vertical).flexDirection
         let scrollView = BeagleContainerScrollView()
         let contentView = UIView()
         
         children.forEach {
-            let childView = $0.toView(context: context, dependencies: dependencies)
+            let childView = $0.toView(controller: controller)
             contentView.addSubview(childView)
             childView.flex.isEnabled = true
         }

@@ -81,7 +81,7 @@ struct FormScreen: DeeplinkScreen {
 }
 
 extension DemoTextField: Renderable {
-    func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    func toView(controller: BeagleController) -> UIView {
         let textField = View()
         textField.borderStyle = .roundedRect
         textField.placeholder = placeholder

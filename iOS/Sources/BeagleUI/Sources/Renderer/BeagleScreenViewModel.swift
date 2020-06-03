@@ -33,16 +33,7 @@ class BeagleScreenViewModel {
         case failure(ServerDrivenState.Error)
     }
 
-    var dependencies: Dependencies
-
-    public typealias Dependencies =
-        DependencyActionExecutor
-        & DependencyRepository
-        & DependencyAnalyticsExecutor
-        & RenderableDependencies
-        & DependencyComponentDecoding
-        & DependencyFormDataStoreHandler
-        & DependencyNavigationController
+    var dependencies: BeagleDependenciesProtocol
 
     // MARK: Observer
 
@@ -54,7 +45,7 @@ class BeagleScreenViewModel {
 
     public init(
         screenType: ScreenType,
-        dependencies: Dependencies = Beagle.dependencies
+        dependencies: BeagleDependenciesProtocol = Beagle.dependencies
     ) {
         self.screenType = screenType
         self.dependencies = dependencies

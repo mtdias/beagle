@@ -33,7 +33,7 @@ final class FormSubmitTests: XCTestCase {
         let formSubmit = FormSubmit(child: ComponentDummy())
                 
         // When
-        let view = formSubmit.toView(context: BeagleContextDummy(), dependencies: BeagleScreenDependencies())
+        let view = formSubmit.toView(controller: BeagleControllerStub())
         
         // Then
         XCTAssertTrue(view.subviews.first?.beagleFormElement is FormSubmit)

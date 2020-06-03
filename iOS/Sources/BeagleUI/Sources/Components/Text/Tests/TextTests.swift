@@ -36,10 +36,10 @@ final class TextTests: XCTestCase {
     func testEqualTextContent() throws {
         // Given
         let component = Text("Test")
-        let context = BeagleContextDummy()
+        let controller = BeagleControllerStub()
         
         // When
-        guard let label = component.toView(context: context, dependencies: dependencies) as? UITextView else {
+        guard let label = component.toView(controller: controller) as? UITextView else {
             XCTFail("Unable to type cast to UITextView.")
             return
         }
@@ -51,10 +51,10 @@ final class TextTests: XCTestCase {
     func testTextWithRightAlignment() throws {
         // Given
         let component = Text("Test")
-        let context = BeagleContextDummy()
+        let controller = BeagleControllerStub()
         
         // When
-        guard let label = component.toView(context: context, dependencies: dependencies) as? UITextView else {
+        guard let label = component.toView(controller: controller) as? UITextView else {
             XCTFail("Unable to type cast to UITextView.")
             return
         }
@@ -66,10 +66,10 @@ final class TextTests: XCTestCase {
     func testTextWithLeftAlignment() throws {
         // Given
         let component = Text("Test", alignment: .left)
-        let context = BeagleContextDummy()
+        let controller = BeagleControllerStub()
         
         // When
-        guard let label = component.toView(context: context, dependencies: dependencies) as? UITextView else {
+        guard let label = component.toView(controller: controller) as? UITextView else {
             XCTFail("Unable to type cast to UITextView.")
             return
         }
@@ -85,7 +85,8 @@ final class TextTests: XCTestCase {
     
     func test_renderTextComponent() throws {
         let component: Text = try componentFromJsonFile(fileName: "TextComponent")
-        let view = component.toView(context: BeagleContextDummy(), dependencies: dependencies)
+        let controller = BeagleControllerStub(dependencies: dependencies)
+        let view = component.toView(controller: controller)
         assertSnapshotImage(view, size: CGSize(width: 300, height: 150))
     }
 

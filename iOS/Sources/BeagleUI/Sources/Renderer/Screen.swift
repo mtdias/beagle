@@ -47,7 +47,7 @@ public struct Screen: AppearanceComponent, AutoInitiable {
 }
 
 extension Screen {
-   func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+   func toView(controller: BeagleController) -> UIView {
         return ScreenComponent(
             identifier: identifier,
             appearance: appearance,
@@ -55,6 +55,6 @@ extension Screen {
             navigationBar: navigationBar,
             screenAnalyticsEvent: screenAnalyticsEvent,
             child: child
-        ).toView(context: context, dependencies: dependencies)
+        ).toView(controller: controller)
     }
 }

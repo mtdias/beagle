@@ -36,7 +36,7 @@ struct LazyComponentScreen: DeeplinkScreen {
                     FormInput(
                         name: "field",
                         child: LazyComponent(
-                            path: .TEXT_LAZY_COMPONENTS_ENDPOINT,
+                            path: .TEXT_LAZY_COMPONENTS_ENDPOINT_1,
                             initialState: Text("Loading...")
                         )
                     ),
@@ -60,7 +60,7 @@ struct LazyComponentScreen: DeeplinkScreen {
                     FormInput(
                         name: "field1",
                         child: LazyComponent(
-                            path: .TEXT_LAZY_COMPONENTS_ENDPOINT,
+                            path: .TEXT_LAZY_COMPONENTS_ENDPOINT_2,
                             initialState: Text("Loading...")
                         )
                     ),

@@ -16,8 +16,7 @@
 
 import UIKit
 
-public protocol BeagleDependenciesProtocol: DependencyActionExecutor,
-    DependencyAnalyticsExecutor,
+public protocol BeagleDependenciesProtocol: DependencyAnalyticsExecutor,
     DependencyUrlBuilder,
     DependencyComponentDecoding,
     DependencyNetworkClient,
@@ -45,7 +44,6 @@ open class BeagleDependencies: BeagleDependenciesProtocol {
     public var validatorProvider: ValidatorProvider?
     public var deepLinkHandler: DeepLinkScreenManaging?
     public var customActionHandler: CustomActionHandler?
-    public var actionExecutor: ActionExecutor
     public var repository: Repository
     public var analytics: Analytics?
     public var navigationControllerType: BeagleNavigationController.Type
@@ -80,8 +78,7 @@ open class BeagleDependencies: BeagleDependenciesProtocol {
         self.navigationControllerType = BeagleNavigationController.self
 
         self.networkClient = NetworkClientDefault(dependencies: resolver)
-        self.navigation = BeagleNavigator(dependencies: resolver)
-        self.actionExecutor = ActionExecuting(dependencies: resolver)
+        self.navigation = BeagleNavigator()
         self.repository = RepositoryDefault(dependencies: resolver)
         self.cacheManager = CacheManagerDefault(dependencies: resolver)
         self.logger = BeagleLogger()
@@ -98,7 +95,6 @@ open class BeagleDependencies: BeagleDependenciesProtocol {
 /// The problem happened because we needed to pass `self` as dependency before `init` has concluded.
 /// - Example: see where `resolver` is being used in the `BeagleDependencies` `init`.
 private class InnerDependenciesResolver: RepositoryDefault.Dependencies,
-    ActionExecuting.Dependencies,
     DependencyNavigationController,
     DependencyDeepLinkScreenManaging,
     DependencyRepository,

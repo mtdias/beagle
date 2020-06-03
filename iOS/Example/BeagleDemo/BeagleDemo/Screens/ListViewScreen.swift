@@ -41,7 +41,7 @@ struct ListViewScreen: DeeplinkScreen {
             Text("0003"),
             Text("0004"),
             LazyComponent(
-                path: .TEXT_LAZY_COMPONENTS_ENDPOINT,
+                path: .TEXT_LAZY_COMPONENTS_ENDPOINT_1,
                 initialState: Text("Loading LazyComponent...")
             ),
             Text("0005"),

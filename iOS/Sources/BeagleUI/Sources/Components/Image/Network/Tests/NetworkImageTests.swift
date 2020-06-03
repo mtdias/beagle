@@ -26,7 +26,7 @@ final class NetworkImageTests: XCTestCase {
         let component = NetworkImage(path: "www.com")
         
         // When
-        guard let imageView = component.toView(context: BeagleContextDummy(), dependencies: BeagleScreenDependencies()) as? UIImageView else {
+        guard let imageView = component.toView(controller: BeagleControllerStub()) as? UIImageView else {
             XCTFail("Build view not returning UIImageView")
             return
         }

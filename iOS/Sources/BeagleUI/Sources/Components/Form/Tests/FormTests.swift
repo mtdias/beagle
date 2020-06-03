@@ -19,63 +19,21 @@ import SnapshotTesting
 @testable import BeagleUI
 
 final class FormTests: XCTestCase {
-
-    private lazy var form: Form = {
-        let action = FormRemoteAction(path: "submit", method: .post)
-        let form = Form(action: action, child: Container(children: [
-            FormInput(name: "name", child: InputComponent(value: "John Doe")),
-            FormSubmit(child: Button(text: "Add"), enabled: true)
-        ]))
-        return form
-    }()
-
-    private lazy var dependencies = BeagleScreenDependencies()
     
-    func test_buildView_shouldRegisterFormSubmit() throws {
+    func test_buildView_shouldRegisterFormSubmit() {
         // Given
-        let formManager = FormManagerSpy()
-        let context = BeagleContextSpy(formManager: formManager)
-                
+        let submitView = UILabel()
+        let sut = Form(
+            action: ActionDummy(),
+            child: FormSubmit(child: ComponentDummy(resultView: submitView))
+        )
+        
         // When
-        _ = form.toView(context: context, dependencies: dependencies)
+        _ = sut.toView(controller: BeagleControllerStub())
         
         // Then
-        XCTAssertTrue(formManager.didCallRegisterFormSubmit)
-    }
-    
-    func test_whenDecodingJson_thenItShouldReturnAForm() throws {
-        let component: Form = try componentFromJsonFile(fileName: "formComponent")
-        assertSnapshot(matching: component, as: .dump)
-    }
-}
-
-// MARK: - Stubs
-
-private struct InputComponent: ServerDrivenComponent {
-    let value: String
-
-    func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
-        return InputStub(value: value)
-    }
-}
-
-private class InputStub: UIView, InputValue, ValidationErrorListener, WidgetStateObservable {
-    var observable = Observable<WidgetState>(value: WidgetState(value: false))
-
-    let value: String
-
-    init(value: String = "") {
-        self.value = value
-        super.init(frame: .zero)
-    }
-
-    required init?(coder: NSCoder) {
-        BeagleUI.fatalError("init(coder:) has not been implemented")
-    }
-
-    func getValue() -> Any {
-        return value
-    }
-    func onValidationError(message: String?) {
+        XCTAssertEqual(submitView.gestureRecognizers?.count, 1)
+        XCTAssert(submitView.gestureRecognizers?[0] is SubmitFormGestureRecognizer)
+        XCTAssert(submitView.isUserInteractionEnabled)
     }
 }

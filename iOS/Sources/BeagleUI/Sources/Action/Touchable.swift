@@ -36,20 +36,33 @@ public struct Touchable: ServerDrivenComponent, ClickedOnComponent, AutoInitiabl
 }
 
 extension Touchable: Renderable {
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
-        let childView = child.toView(context: context, dependencies: dependencies)
+    public func toView(controller: BeagleController) -> UIView {
+        let childView = child.toView(controller: controller)
         var events: [Event] = [.action(action)]
         if let clickAnalyticsEvent = clickAnalyticsEvent {
             events.append(.analytics(clickAnalyticsEvent))
         }
         
-        context.actionManager.register(events: events, inView: childView)
-        prefetchComponent(context: context, dependencies: dependencies)
+        register(events: events, inView: childView, controller: controller)
+        prefetchComponent(helper: controller.dependencies.preFetchHelper)
         return childView
     }
     
-    private func prefetchComponent(context: BeagleContext, dependencies: RenderableDependencies) {
-        guard let newPath = (action as? Navigate)?.newPath else { return }
-        dependencies.preFetchHelper.prefetchComponent(newPath: newPath)
+    private func register(events: [Event], inView view: UIView, controller: BeagleController) {
+        let eventsGestureRecognizer = EventsGestureRecognizer(
+            events: events,
+            controller: controller
+        )
+        view.addGestureRecognizer(eventsGestureRecognizer)
     }
+    
+    private func prefetchComponent(helper: BeaglePrefetchHelping) {
+        guard let newPath = (action as? Navigate)?.newPath else { return }
+        helper.prefetchComponent(newPath: newPath)
+    }
+}
+
+enum Event {
+    case action(Action)
+    case analytics(AnalyticsClick)
 }

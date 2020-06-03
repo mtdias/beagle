@@ -49,11 +49,11 @@ extension Container {
 }
 
 extension Container: Renderable {
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    public func toView(controller: BeagleController) -> UIView {
         let containerView = UIView()
         
         children.forEach {
-            let childView = $0.toView(context: context, dependencies: dependencies)
+            let childView = $0.toView(controller: controller)
             containerView.addSubview(childView)
             childView.flex.isEnabled = true
         }

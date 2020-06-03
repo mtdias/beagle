@@ -23,13 +23,13 @@ public protocol ComposeComponent: ServerDrivenComponent {
 }
 
 extension ComposeComponent {
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
-        return build().toView(context: context, dependencies: dependencies)
+    public func toView(controller: BeagleController) -> UIView {
+        return build().toView(controller: controller)
     }
 }
 
 public protocol Renderable {
-    func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView
+    func toView(controller: BeagleController) -> UIView
 }
 
 public protocol RenderableDependencies: DependencyTheme,

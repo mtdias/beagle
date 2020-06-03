@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import XCTest
-@testable import BeagleUI
+import Foundation
 
-final class BeagleViewBuilderTests: XCTestCase {
-
-    func test_buildFromRootComponent_shouldReturnTheExpectedRootView() {
-        // Given
-        let component = Text("Text")
-        
-        // When
-        let rootView = component.toView(controller: BeagleControllerStub())
-        
-        // Then
-        XCTAssertTrue(rootView is UITextView, "Expected a `UITextView`, but got \(String(describing: rootView)).")
+/// Defines a representation of an unknwon Action
+public struct UnknownAction: Action {
+    public let type: String
+    
+    public init(type: String) {
+        self.type = type
+    }
+    
+    public func execute(controller: BeagleController, sender: Any) {
+        controller.dependencies.logger.log(
+            Log.action(.executeUnknownAction(type: type))
+        )
     }
 }

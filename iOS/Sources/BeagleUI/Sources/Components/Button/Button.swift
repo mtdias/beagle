@@ -44,18 +44,17 @@ public struct Button: Widget, ClickedOnComponent, AutoInitiableAndDecodable {
 
 extension Button: Renderable {
     
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    public func toView(controller: BeagleController) -> UIView {
         
         let button = BeagleUIButton.button(
-            context: context,
             action: action,
             clickAnalyticsEvent: clickAnalyticsEvent,
-            dependencies: dependencies
+            controller: controller
         )
         button.setTitle(text, for: .normal)
         
         if let newPath = (action as? Navigate)?.newPath {
-            dependencies.preFetchHelper.prefetchComponent(newPath: newPath)
+            controller.dependencies.preFetchHelper.prefetchComponent(newPath: newPath)
         }
         
         button.style = style
@@ -96,37 +95,33 @@ extension Button: Renderable {
         
         private var action: Action?
         private var clickAnalyticsEvent: AnalyticsClick?
-        private weak var context: BeagleContext?
-        private var dependencies: DependencyTheme?
+        private weak var controller: BeagleController?
         
         static func button(
-            context: BeagleContext,
             action: Action?,
             clickAnalyticsEvent: AnalyticsClick? = nil,
-            dependencies: DependencyTheme
+            controller: BeagleController
         ) -> BeagleUIButton {
             let button = BeagleUIButton(type: .system)
             button.action = action
-            button.context = context
-            button.dependencies = dependencies
             button.clickAnalyticsEvent = clickAnalyticsEvent
+            button.controller = controller
             button.addTarget(button, action: #selector(triggerTouchUpInsideActions), for: .touchUpInside)
             return button
         }
         
         @objc func triggerTouchUpInsideActions() {
-            if let action = action {
-                context?.actionManager.doAction(action, sender: self)
-            }
+            guard let controller = controller else { return }
             
             if let click = clickAnalyticsEvent {
-                context?.actionManager.doAnalyticsAction(click, sender: self)
+                controller.dependencies.analytics?.trackEventOnClick(click)
             }
+            action?.execute(controller: controller, sender: self)
         }
         
         private func applyStyle() {
             guard let style = style else { return }
-            dependencies?.theme.applyStyle(for: self as UIButton, withId: style)
+            controller?.dependencies.theme.applyStyle(for: self as UIButton, withId: style)
         }
     }
 }

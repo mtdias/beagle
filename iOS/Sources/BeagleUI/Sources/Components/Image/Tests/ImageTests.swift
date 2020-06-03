@@ -28,7 +28,7 @@ class ImageTests: XCTestCase {
         let component = Image(name: "teste", contentMode: .fitXY)
         
         //When
-        guard let imageView = component.toView(context: BeagleContextDummy(), dependencies: dependencies) as? UIImageView else {
+        guard let imageView = component.toView(controller: BeagleControllerStub()) as? UIImageView else {
             XCTFail("Build View not returning UIImageView")
             return
         }
@@ -51,7 +51,7 @@ class ImageTests: XCTestCase {
         }
 
         let image: Image = try componentFromJsonFile(fileName: "ImageComponent")
-        let view = image.toView(context: BeagleContextDummy(), dependencies: dependencies)
+        let view = image.toView(controller: BeagleControllerStub())
         assertSnapshotImage(view, size: CGSize(width: 400, height: 400))
     }
 }

@@ -36,4 +36,7 @@ public struct FormRemoteAction: Action, AutoInitiable {
         self.method = method
     }
 // sourcery:end
+    
+    public func execute(controller: BeagleController, sender: Any) {}
+    
 }

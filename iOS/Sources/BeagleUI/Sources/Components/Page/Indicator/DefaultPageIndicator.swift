@@ -34,7 +34,7 @@ public class PageIndicator: PageIndicatorComponent, AutoInitiable {
 }
 
 extension PageIndicator: Renderable {
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    public func toView(controller: BeagleController) -> UIView {
         let view = PageIndicatorUIComponent(selectedColor: selectedColor, unselectedColor: unselectedColor)
         return view
     }

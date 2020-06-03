@@ -42,7 +42,7 @@ public struct Text: Widget, AutoDecodable {
 
 extension Text: Renderable {
 
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    public func toView(controller: BeagleController) -> UIView {
         let textView = UITextView()
         textView.isEditable = false
         textView.isSelectable = false
@@ -57,7 +57,7 @@ extension Text: Renderable {
         textView.text = text
         
         if let style = style {
-            dependencies.theme.applyStyle(for: textView, withId: style)
+            controller.dependencies.theme.applyStyle(for: textView, withId: style)
         }
         if let color = textColor {
             textView.textColor = UIColor(hex: color)

@@ -35,9 +35,56 @@ import UIKit
 }
 
 extension LazyComponent: Renderable {
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
-        let view = initialState.toView(context: context, dependencies: dependencies)
-        context.lazyLoadManager.lazyLoad(url: path, initialState: view)
+    
+    public func toView(controller: BeagleController) -> UIView {
+        let view = initialState.toView(controller: controller)
+        lazyLoad(initialState: view, controller: controller)
         return view
+    }
+    
+    private func lazyLoad(initialState view: UIView, controller: BeagleController) {
+        controller.dependencies.repository.fetchComponent(url: path, additionalData: nil) {
+            [weak view, weak controller] result in
+            guard let view = view, let controller = controller else { return }
+            switch result {
+            case .success(let component):
+                view.update(lazyLoaded: component, controller: controller)
+            case .failure(let error):
+                controller.serverDrivenState = .error(.lazyLoad(error))
+            }
+        }
+    }
+}
+
+extension UIView {
+    fileprivate func update(
+        lazyLoaded: ServerDrivenComponent,
+        controller: BeagleController
+    ) {
+        let finalView: UIView
+        if let updatable = self as? OnStateUpdatable,
+               updatable.onUpdateState(component: lazyLoaded) {
+            finalView = self
+        } else {
+            finalView = replace(with: lazyLoaded, controller: controller)
+        }
+        controller.dependencies.flex(finalView).markDirty()
+    }
+    
+    private func replace(
+        with component: ServerDrivenComponent,
+        controller: BeagleController
+    ) -> UIView {
+        guard let superview = superview else { return self }
+
+        let newView = component.toView(controller: controller)
+        newView.frame = frame
+        superview.insertSubview(newView, belowSubview: self)
+        removeFromSuperview()
+        
+        if controller.dependencies.flex(self).isEnabled {
+           controller.dependencies.flex(newView).isEnabled = true
+        }
+        return newView
     }
 }

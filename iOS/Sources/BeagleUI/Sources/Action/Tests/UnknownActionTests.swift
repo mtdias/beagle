@@ -17,16 +17,21 @@
 import XCTest
 @testable import BeagleUI
 
-final class BeagleViewBuilderTests: XCTestCase {
-
-    func test_buildFromRootComponent_shouldReturnTheExpectedRootView() {
-        // Given
-        let component = Text("Text")
+final class UnknownActionTests: XCTestCase {
+    
+    func test_whenExecuteUnknownAction_shouldLogTheAction() {
+        let sut = UnknownAction(type: "InvalidType")
+        let logger = LoggerMocked()
+        let controller = BeagleControllerStub()
+        controller.dependencies = BeagleScreenDependencies(logger: logger)
         
-        // When
-        let rootView = component.toView(controller: BeagleControllerStub())
-        
-        // Then
-        XCTAssertTrue(rootView is UITextView, "Expected a `UITextView`, but got \(String(describing: rootView)).")
+        sut.execute(controller: controller, sender: self)
+        XCTAssertEqual(logger.log?.level, .info)
+        XCTAssertEqual(logger.log?.category, "Action")
+        XCTAssertEqual(
+            logger.log?.message,
+            "Tried to execute unknown action of type: InvalidType"
+        )
     }
+    
 }

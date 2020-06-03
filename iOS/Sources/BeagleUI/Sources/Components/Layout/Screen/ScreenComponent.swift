@@ -47,11 +47,11 @@ struct ScreenComponent: AppearanceComponent, ServerDrivenComponent, AutoInitiabl
 }
 
 extension ScreenComponent: Renderable {
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    public func toView(controller: BeagleController) -> UIView {
 
-        prefetch(dependencies: dependencies)
+        prefetch(dependencies: controller.dependencies)
         
-        let contentView = buildChildView(context: context, dependencies: dependencies)
+        let contentView = buildChildView(controller: controller)
         contentView.beagle.setup(appearance: appearance)
         return contentView
     }
@@ -65,9 +65,9 @@ extension ScreenComponent: Renderable {
             .forEach { dependencies.preFetchHelper.prefetchComponent(newPath: $0) }
     }
     
-    private func buildChildView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    private func buildChildView(controller: BeagleController) -> UIView {
         let childHolder = ScreenView()
-        let childView = child.toView(context: context, dependencies: dependencies)
+        let childView = child.toView(controller: controller)
         
         childHolder.addSubview(childView)
         childHolder.flex.setup(Flex(grow: 1))

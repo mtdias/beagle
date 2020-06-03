@@ -32,7 +32,7 @@ public struct Spacer: ServerDrivenComponent {
 
 extension Spacer: Renderable {
     
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    public func toView(controller: BeagleController) -> UIView {
         let flex = Flex(
             size: Size(
                 width: UnitValue(value: size, type: .real),

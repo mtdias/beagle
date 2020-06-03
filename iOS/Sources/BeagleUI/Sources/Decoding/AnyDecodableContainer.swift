@@ -85,7 +85,7 @@ struct UnknownComponent: ServerDrivenComponent {
 }
 
 extension UnknownComponent: Renderable {
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    public func toView(controller: BeagleController) -> UIView {
         #if DEBUG
         let label = UILabel(frame: .zero)
         label.numberOfLines = 2

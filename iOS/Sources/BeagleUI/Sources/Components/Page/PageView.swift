@@ -33,7 +33,7 @@ public struct PageView: ServerDrivenComponent, AutoInitiable {
 }
 
 extension PageView: Renderable {
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    public func toView(controller: BeagleController) -> UIView {
         let pagesControllers = pages.map {
             BeagleScreenViewController(
                 viewModel: .init(screenType: .declarative($0.toScreen()))
@@ -42,7 +42,7 @@ extension PageView: Renderable {
 
         var indicatorView: PageIndicatorUIView?
         if let indicator = pageIndicator {
-            indicatorView = indicator.toView(context: context, dependencies: dependencies) as? PageIndicatorUIView
+            indicatorView = indicator.toView(controller: controller) as? PageIndicatorUIView
         }
 
         let view = PageViewUIComponent(

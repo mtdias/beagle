@@ -53,13 +53,12 @@ final class ContainerTests: XCTestCase {
     
     func test_toView_shouldReturnTheExpectedView() throws {
         //Given
-        let dependencies = BeagleScreenDependencies()
         let numberOfChilds = 3
         let containerChilds = Array(repeating: ComponentDummy(), count: numberOfChilds)
         let container = Container(children: containerChilds)
         
         // When
-        let resultingView = container.toView(context: BeagleContextDummy(), dependencies: dependencies)
+        let resultingView = container.toView(controller: BeagleControllerStub())
         
         //Then
         XCTAssert(resultingView.subviews.count == numberOfChilds)

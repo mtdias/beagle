@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-import UIKit
+import XCTest
+@testable import BeagleUI
 
-final class EventsGestureRecognizer: UITapGestureRecognizer {
-    let events: [Event]
+final class ShowNativeDialogTests: XCTestCase {
     
-    init(events: [Event], target: Any?, selector: Selector?) {
-        self.events = events
-        super.init(target: target, action: selector)
-    }
-}
-
-final class AnalyticsGestureRecognizer: UITapGestureRecognizer {
-    
-    let click: AnalyticsClick
-    
-    init(event: AnalyticsClick, target: Any?, selector: Selector?) {
-        self.click = event
-        super.init(target: target, action: selector)
+    func test_whenShowNativeDialog_shouldPresentAlertController() {
+        // Given
+        let action = ShowNativeDialog(
+            title: "Title",
+            message: "Message",
+            buttonText: "Button"
+        )
+        
+        let controller = BeagleControllerNavigationSpy()
+        
+        // When
+        action.execute(controller: controller, sender: self)
+        
+        // Then
+        XCTAssertTrue(controller.presentViewControllerCalled)
+        XCTAssertTrue(controller.viewControllerToPresent is UIAlertController)
     }
 }

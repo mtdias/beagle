@@ -34,7 +34,8 @@ extension String {
     static let DEEPLINK_ENDPOINT = "screen-deep-link"
     static let NAVIGATE_ENDPOINT = "https://t001-2751a.firebaseapp.com/flow/step1.json"
     static let TEXT_FORM_ENDPOINT = "https://t001-2751a.firebaseapp.com/action/shownativedialog.json"
-    static let TEXT_LAZY_COMPONENTS_ENDPOINT = "http://www.mocky.io/v2/5e4e91c02f00001f2016a8f2"
+    static let TEXT_LAZY_COMPONENTS_ENDPOINT_1 = "http://www.mocky.io/v2/5ed80c1f3200007f5a274e5c"
+    static let TEXT_LAZY_COMPONENTS_ENDPOINT_2 = "http://www.mocky.io/v2/5ed80c7332000005f6274e5d"
     static let WEB_VIEW_ENDPOINT = "webViewComponent"
     
     // MARK: - URL

@@ -31,4 +31,20 @@ public struct CustomAction: Action, AutoInitiable {
         self.data = data
     }
 // sourcery:end
+    
+    public func execute(controller: BeagleController, sender: Any) {
+        controller.dependencies.customActionHandler?.handle(action: self, controller: controller) {
+            [weak controller] result in guard let controller = controller else { return }
+            
+            switch result {
+            case .start:
+                controller.serverDrivenState = .loading(true)
+            case .error(let error):
+                controller.serverDrivenState = .error(.action(error))
+            case .success(let action):
+                controller.serverDrivenState = .loading(false)
+                action.execute(controller: controller, sender: sender)
+            }
+        }
+    }
 }

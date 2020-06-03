@@ -150,10 +150,7 @@ final class ListViewTests: XCTestCase {
     // MARK: - Helper
 
     private func makeListUiView(_ listComponent: ListView) -> UIView {
-        return listComponent.toView(
-            context: BeagleContextDummy(),
-            dependencies: BeagleDependencies()
-        )
+        return listComponent.toView(controller: BeagleControllerStub())
     }
 
     private static func createText(_ string: String, position: Double) -> Text {

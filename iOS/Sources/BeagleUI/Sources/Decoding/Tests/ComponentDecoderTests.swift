@@ -103,13 +103,13 @@ final class ComponentDecoderTests: XCTestCase {
 struct NewComponent: ServerDrivenComponent {
     var text: String
     
-    func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    func toView(controller: BeagleController) -> UIView {
         return UIView()
     }
 }
 
 struct Unknown: ServerDrivenComponent {
-    func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    func toView(controller: BeagleController) -> UIView {
         return UIView()
     }
 }

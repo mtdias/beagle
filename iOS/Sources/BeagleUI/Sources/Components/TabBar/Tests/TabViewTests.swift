@@ -65,7 +65,7 @@ final class TabViewTests: XCTestCase {
         ])
         
         // When
-        let resultingView = component.toView(context: BeagleContextDummy(), dependencies: BeagleScreenDependencies())
+        let resultingView = component.toView(controller: BeagleControllerStub())
         guard let tabViewUIComponent = resultingView as? TabViewUIComponent else {
             XCTFail("Expected `TabViewUIComponent`, but got \(String(describing: resultingView)).")
             return

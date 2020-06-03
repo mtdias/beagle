@@ -29,6 +29,11 @@ public enum Navigate: Action {
     case popView
     case popToView(String)
     
+    public func execute(controller: BeagleController, sender: Any) {
+        controller.dependencies.navigation
+            .navigate(action: self, controller: controller, animated: true)
+    }
+    
     var newPath: Route.NewPath? {
         switch self {
         case let .resetApplication(route),

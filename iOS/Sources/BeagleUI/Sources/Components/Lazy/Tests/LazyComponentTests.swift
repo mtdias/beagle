@@ -32,41 +32,68 @@ final class LazyComponentTests: XCTestCase {
         XCTAssert(sut.initialState is Text)
     }
     
-    func test_toView_shouldReturnTheExpectedView() {
-        // Given
-        let lazyComponent = LazyComponent(path: "path", initialState: ComponentDummy())
-        let lazyLoadManagerSpy = LazyLoadManagerSpy()
-        let context = BeagleContextSpy(lazyLoadManager: lazyLoadManagerSpy)
-        
-        // When
-        _ = lazyComponent.toView(context: context, dependencies: BeagleScreenDependencies())
-        
-        // Then
-        XCTAssertTrue(lazyLoadManagerSpy.didCallLazyLoad)
-    }
-    
-    func test_loadUnknowComponent_shouldRenderTheError() {
-        let lazyComponent = LazyComponent(path: "unknow-widget", initialState: Text("Loading..."))
-        let size = CGSize(width: 300, height: 75)
+    func test_lazyLoad_shouldReplaceTheInitialContent() {
+        var initialState = Text("Loading...")
+        initialState.widgetProperties.appearance = .init(backgroundColor: "#00FF00")
+        let sut = LazyComponent(path: "", initialState: initialState)
         let repository = LazyRepositoryStub()
         let dependecies = BeagleDependencies()
         dependecies.repository = repository
         
-        let screen = BeagleScreenViewController(
-            viewModel: .init(
-                screenType: .declarative(lazyComponent.toScreen()),
-                dependencies: dependecies
-            )
+        let screenController = BeagleScreenViewController(viewModel: .init(
+            screenType: .declarative(Screen(child: sut)),
+            dependencies: dependecies)
         )
         
-        assertSnapshotImage(screen, size: size)
-        repository.componentCompletion?(.success(UnknownComponent(type: "LazyError")))
-        assertSnapshotImage(screen, size: size)
+        let size = CGSize(width: 75, height: 40)
+        assertSnapshotImage(screenController, size: size)
+        
+        var lazyLoaded = Text("Lazy Loaded!")
+        lazyLoaded.widgetProperties.appearance = .init(backgroundColor: "#FFFF00")
+        repository.componentCompletion?(.success(lazyLoaded))
+        assertSnapshotImage(screenController, size: size)
+    }
+
+    func test_lazyLoad_withUpdatableView_shouldCallUpdate() {
+        let initialView = OnStateUpdatableViewSpy()
+        let sut = LazyComponent(
+            path: "",
+            initialState: ComponentDummy(resultView: initialView)
+        )
+        let repository = LazyRepositoryStub()
+        let controller = BeagleControllerStub()
+        controller.dependencies = BeagleScreenDependencies(repository: repository)
+        
+        let view = sut.toView(controller: controller)
+        repository.componentCompletion?(.success(ComponentDummy()))
+        
+        XCTAssertEqual(view, initialView)
+        XCTAssertTrue(initialView.didCallOnUpdateState)
     }
     
-    func test_whenDecodingJson_thenItShouldReturnALazyComponent() throws {
-        let component: LazyComponent = try componentFromJsonFile(fileName: "lazyComponent")
-        assertSnapshot(matching: component, as: .dump)
+    func test_whenLoadFail_shouldSetNotifyTheScreen() {
+        let initialView = UIView()
+        let sut = LazyComponent(
+            path: "",
+            initialState: ComponentDummy(resultView: initialView)
+        )
+        let repository = LazyRepositoryStub()
+        let controller = BeagleControllerStub()
+        controller.dependencies = BeagleScreenDependencies(repository: repository)
+        
+        let view = sut.toView(controller: controller)
+        repository.componentCompletion?(.failure(.urlBuilderError))
+        
+        switch controller.serverDrivenState {
+        case .error(.lazyLoad(.urlBuilderError)):
+            break
+        default:
+            XCTFail("""
+                Expected state .error(.lazyLoad(.urlBuilderError))
+                but found \(controller.serverDrivenState)
+                """)
+        }
+        XCTAssertEqual(view, initialView)
     }
 }
 
@@ -75,6 +102,8 @@ class LazyRepositoryStub: Repository {
     var componentCompletion: ((Result<ServerDrivenComponent, Request.Error>) -> Void)?
     var formCompletion: ((Result<Action, Request.Error>) -> Void)?
     var imageCompletion: ((Result<Data, Request.Error>) -> Void)?
+    
+    private(set) var formData: Request.FormData?
 
     func fetchComponent(url: String, additionalData: RemoteScreenAdditionalData?, completion: @escaping (Result<ServerDrivenComponent, Request.Error>) -> Void) -> RequestToken? {
         componentCompletion = completion
@@ -82,6 +111,7 @@ class LazyRepositoryStub: Repository {
     }
 
     func submitForm(url: String, additionalData: RemoteScreenAdditionalData?, data: Request.FormData, completion: @escaping (Result<Action, Request.Error>) -> Void) -> RequestToken? {
+        formData = data
         formCompletion = completion
         return nil
     }

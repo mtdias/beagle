@@ -33,7 +33,7 @@ public struct WebView: FlexComponent, ServerDrivenComponent, AutoInitiableAndDec
 }
 
 extension WebView: Renderable {
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    public func toView(controller: BeagleController) -> UIView {
         let webView = WebViewUIComponent(model: WebViewUIComponent.Model(url: url))
         webView.flex.setup(flex)
         return webView

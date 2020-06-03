@@ -36,14 +36,14 @@ public struct NetworkImage: Widget, AutoInitiableAndDecodable {
 }
 
 extension NetworkImage: Renderable {
-    public func toView(context: BeagleContext, dependencies: RenderableDependencies) -> UIView {
+    public func toView(controller: BeagleController) -> UIView {
         let imageView = UIImageView()
         imageView.clipsToBounds = true
         imageView.contentMode = (contentMode ?? .fitCenter).toUIKit()
 
         imageView.beagle.setup(self)
         
-        dependencies.repository.fetchImage(url: path, additionalData: nil) { [weak imageView] result in
+        controller.dependencies.repository.fetchImage(url: path, additionalData: nil) { [weak imageView] result in
             guard let imageView = imageView else { return }
             guard case .success(let data) = result else { return }
             let image = UIImage(data: data)
